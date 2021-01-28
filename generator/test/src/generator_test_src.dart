@@ -158,7 +158,7 @@ abstract class FormUrlEncodedTest {
     final _data = FormData();
     _data.files.add(MapEntry(
         'image',
-        MultipartFile.fromFileSync(image.path,
+        MultipartFile(image.openRead(), await image.length(),
             filename: image.path.split(Platform.pathSeparator).last)));
 ''',
   contains: true,
@@ -174,7 +174,7 @@ abstract class FilePartTest {
     final _data = FormData();
     _data.files.add(MapEntry(
         'image',
-        MultipartFile.fromFileSync(image.path,
+        MultipartFile(image.openRead(), await image.length(),
             filename: 'my_profile_image.jpg')));
 ''',
   contains: true,
@@ -182,8 +182,7 @@ abstract class FilePartTest {
 @RestApi(baseUrl: "https://httpbin.org/")
 abstract class FilePartWithCustomNameTest {
   @POST("/profile")
-  Future<String> setProfile(
-      @Part(name: 'image', fileName: 'my_profile_image.jpg') File image);
+  Future<String> setProfile(@Part(name: 'image', fileName: 'my_profile_image.jpg') File image);
 }
 
 @ShouldGenerate(
@@ -191,7 +190,7 @@ abstract class FilePartWithCustomNameTest {
     final _data = FormData();
     _data.files.add(MapEntry(
         'image',
-        MultipartFile.fromFileSync(image.path,
+        MultipartFile(image.openRead(), await image.length(),
             filename: image.path.split(Platform.pathSeparator).last)));
 ''',
   contains: true,
@@ -270,8 +269,7 @@ mixin AbstractUserMixin {
 abstract class AbstractUser with AbstractUserMixin {
   factory AbstractUser() = User;
 
-  factory AbstractUser.fromJson(Map<String, dynamic> json) =>
-      User.fromJson(json);
+  factory AbstractUser.fromJson(Map<String, dynamic> json) => User.fromJson(json);
 }
 
 @ShouldGenerate(
@@ -324,8 +322,7 @@ abstract class TestAbstractObjectBody {
 @RestApi(baseUrl: "https://httpbin.org/")
 abstract class TestObjectQueries {
   @POST("/users")
-  Future<String> createUser(
-      @Query('u') User u, @Queries() User user1, @Queries() User user2);
+  Future<String> createUser(@Query('u') User u, @Queries() User user1, @Queries() User user2);
 }
 
 class CustomObject {
@@ -438,8 +435,7 @@ abstract class TestBasicListDouble {
 @RestApi(baseUrl: "https://httpbin.org/")
 abstract class TestCancelToken {
   @POST("/users")
-  Future<String> createUser(
-      @Body() User user, @CancelRequest() CancelToken cancelToken);
+  Future<String> createUser(@Body() User user, @CancelRequest() CancelToken cancelToken);
 }
 
 @ShouldGenerate(
@@ -449,8 +445,7 @@ abstract class TestCancelToken {
 @RestApi(baseUrl: "https://httpbin.org/")
 abstract class TestSendProgress {
   @POST("/users")
-  Future<String> createUser(
-      @Body() User user, @SendProgress() ProgressCallback onSendProgress);
+  Future<String> createUser(@Body() User user, @SendProgress() ProgressCallback onSendProgress);
 }
 
 @ShouldGenerate(
@@ -524,7 +519,7 @@ abstract class TestHttpResponseArray {
     if (file != null) {
       _data.files.add(MapEntry(
           'file',
-          MultipartFile.fromFileSync(file.path,
+          MultipartFile(file.openRead(), await file.length(),
               filename: file.path.split(Platform.pathSeparator).last)));
     }
 ''', contains: true)
@@ -844,6 +839,3 @@ abstract class DynamicInnerListGenericPrimitiveTypeShouldBeCastedRecursively {
   @PUT("/")
   Future<GenericUser<List<double>>> get();
 }
-
-
-

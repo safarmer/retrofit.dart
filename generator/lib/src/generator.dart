@@ -97,7 +97,7 @@ class RetrofitGenerator extends GeneratorForAnnotation<retrofit.RestApi> {
       }
     });
 
-    final emitter = DartEmitter();
+    final emitter = DartEmitter(Allocator());
     return DartFormatter().format('${classBuilder.accept(emitter)}');
   }
 
@@ -630,7 +630,8 @@ class RetrofitGenerator extends GeneratorForAnnotation<retrofit.RestApi> {
       if (_typeChecker(List).isExactlyType(dartType) ||
           _typeChecker(BuiltList).isExactlyType(dartType)) {
         var genericType = _getResponseType(dartType);
-        var typeArgs = genericType is ParameterizedType ? genericType.typeArguments : [];
+        var typeArgs =
+            genericType is ParameterizedType ? genericType.typeArguments : [];
         var mapperVal;
         var genericTypeString = "${_displayString(genericType)}";
 
@@ -643,7 +644,7 @@ class RetrofitGenerator extends GeneratorForAnnotation<retrofit.RestApi> {
             .toList()
     """;
         } else {
-          if (_isBasicType(genericType)){
+          if (_isBasicType(genericType)) {
             mapperVal = """
     (json)=>(json as List<dynamic>)
             .map<${genericTypeString}>((i) => 
@@ -651,44 +652,40 @@ class RetrofitGenerator extends GeneratorForAnnotation<retrofit.RestApi> {
                 )
             .toList()
     """;
-          }else
-            {
-              mapperVal = """
+          } else {
+            mapperVal = """
     (json)=>(json as List<dynamic>)
             .map<${genericTypeString}>((i) =>
             ${genericTypeString == 'dynamic' ? ' i as Map<String, dynamic>' : genericTypeString + '.fromJson(  i as Map<String, dynamic> )  '}
     )
             .toList()
     """;
-            }
+          }
         }
         return mapperVal;
       } else {
         var mappedVal = '';
         for (DartType arg in typeArgs) {
           // print(arg);
-          var typeArgs = arg is ParameterizedType
-              ? arg.typeArguments
-              : [];
-          if (typeArgs.length > 0)
-            if (_typeChecker(List).isExactlyType(arg) ||
-                _typeChecker(BuiltList).isExactlyType(arg)) {
-              mappedVal += "${_getInnerJsonSerializableMapperFn(arg)}";
-            }else{
-              mappedVal += "(json)=>${_displayString(arg)}.fromJson(json,${_getInnerJsonSerializableMapperFn(arg)}),";
-            }
-          else{
+          var typeArgs = arg is ParameterizedType ? arg.typeArguments : [];
+          if (typeArgs.length > 0) if (_typeChecker(List).isExactlyType(arg) ||
+              _typeChecker(BuiltList).isExactlyType(arg)) {
+            mappedVal += "${_getInnerJsonSerializableMapperFn(arg)}";
+          } else {
+            mappedVal +=
+                "(json)=>${_displayString(arg)}.fromJson(json,${_getInnerJsonSerializableMapperFn(arg)}),";
+          }
+          else {
             mappedVal += "${_getInnerJsonSerializableMapperFn(arg)}";
           }
         }
         return mappedVal;
       }
     } else {
-      if ( _displayString(dartType) == 'dynamic' || _isBasicType(dartType)){
+      if (_displayString(dartType) == 'dynamic' || _isBasicType(dartType)) {
         return "(json)=>json as ${_displayString(dartType)},";
-
-      }else
-      return "(json)=>${_displayString(dartType)}.fromJson(json),";
+      } else
+        return "(json)=>${_displayString(dartType)}.fromJson(json),";
     }
   }
 
@@ -929,8 +926,9 @@ class RetrofitGenerator extends GeneratorForAnnotation<retrofit.RestApi> {
               : refer(p.displayName)
                   .property('path.split(Platform.pathSeparator).last');
 
-          final uploadFileInfo = refer('$MultipartFile.fromFileSync').call([
-            refer(p.displayName).property('path')
+          final uploadFileInfo = refer('$MultipartFile').newInstance([
+            refer(p.displayName).property('openRead').call([]),
+            refer(p.displayName).awaited.property('length').call([]),
           ], {
             'filename': fileName,
             if (contentType != null)
