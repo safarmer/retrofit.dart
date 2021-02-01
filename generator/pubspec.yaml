@@ -9,12 +9,20 @@ environment:
   sdk: '>=2.7.0 <3.0.0'
 
 dependencies:
-  dio: ^3.0.1
+  dio: ^3.0.10
+  # dio:
+  #   git:
+  #     url: https://github.com/safarmer/dio.git
+  #     path: dio
   source_gen: ^0.9.4+2
   built_collection: ^4.2.0
   code_builder: ^3.2.0
   tuple: ^1.0.2
   retrofit: ^1.3.4+1
+  # retrofit:
+  #   git:
+  #     url: https://github.com/safarmer/retrofit.dart
+  #     path: annotation
   analyzer: any
   dart_style: ^1.0.0
   build: ^1.2.2
